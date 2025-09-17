@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "obsidian-vault-merger"
+version = "0.1.0"
+description = "Integrate multiple Obsidian vaults with conflict-aware merging and a review GUI."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Your Name" }]
+keywords = ["obsidian", "notes", "merge", "knowledge-base", "gui"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Environment :: Console",
+  "Environment :: Win32 (MS Windows)",
+  "Environment :: X11 Applications",
+  "Environment :: MacOS X",
+  "Topic :: Utilities",
+]
+
+dependencies = [
+  "typer>=0.12",
+  "rich>=13.7",
+  "pydantic>=2.8",
+  "PySimpleGUI>=5.0.8",
+  "python-frontmatter>=1.0.1",
+  "ruamel.yaml>=0.18",
+  "pathspec>=0.12",
+  "rapidfuzz>=3.6",
+  "platformdirs>=4.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-cov>=5",
+  "ruff>=0.6",
+  "mypy>=1.11",
+]
+
+[project.scripts]
+obsidian-merge = "obsidian_merger.cli:main"
+obsidian-merge-gui = "obsidian_merger.gui:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/obsidian_merger"]
