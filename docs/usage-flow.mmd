@@ -1,0 +1,9 @@
+flowchart LR
+    Start([Start]) --> Input[Provide Source Vaults & Target]
+    Input --> Plan[Generate Merge Plan]
+    Plan --> Review{Review Plan}
+    Review -->|Accept| Apply[Apply Merging]
+    Review -->|Modify| Plan
+    Apply --> Success([Success])
+    Review -->|GUI| GUI[Launch GUI for Review]
+    GUI --> Review
