@@ -1,0 +1,70 @@
+{
+  "target_root": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault",
+  "actions": [
+    {
+      "type": "mkdir",
+      "path": "."
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/Daily Routines.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/Daily Routines.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/Health Tracking.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/Health Tracking.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/Project Ideas.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/Project Ideas.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/Books to Read.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/Books to Read.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/2024-10-01.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/2024-10-01.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/2024-10-02.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/2024-10-02.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/Travel Plans.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/Travel Plans.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/.obsidian/app.json",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/.obsidian/app.json"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/invalid-vault/note.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/note.md"
+    },
+    {
+      "type": "merge_settings",
+      "sources": [
+        "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault",
+        "/home/nico/python/obsidian-vault-integrator/test-vaults/invalid-vault"
+      ],
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/.obsidian"
+    }
+  ],
+  "notes": [],
+  "warnings": [
+    "/home/nico/python/obsidian-vault-integrator/test-vaults/invalid-vault does not look like an Obsidian vault (missing .obsidian)"
+  ],
+  "sources": [
+    "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault",
+    "/home/nico/python/obsidian-vault-integrator/test-vaults/invalid-vault"
+  ]
+}
