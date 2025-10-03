@@ -62,8 +62,8 @@ flowchart LR
 ## File Structure
 
 ```
-obsidian-vault-integrator/
-├── src/obsidian_merger/
+obsidian-bracelet/
+├── src/obsidian_bracelet/
 │   ├── __init__.py
 │   ├── cli.py           # Command-line interface
 │   ├── planner.py       # Merge planning logic
@@ -82,18 +82,18 @@ obsidian-vault-integrator/
 
 ### Basic Merging
 ```bash
-obsidian-merge plan -s vault1 -s vault2 -t merged
-obsidian-merge apply merged/plan.json
+obsidian-bracelet-merge plan -s vault1 -s vault2 -t merged
+obsidian-bracelet-merge apply merged/plan.json
 ```
 
 ### With GUI
 ```bash
-obsidian-merge-gui --plan-file merged/plan.json
+obsidian-bracelet-merge-gui --plan-file merged/plan.json
 ```
 
 ### Dry Run
 ```bash
-obsidian-merge apply merged/plan.json --dry-run
+obsidian-bracelet-merge apply merged/plan.json --dry-run
 ```
 
 ## Benefits

@@ -3,7 +3,7 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "obsidian-vault-merger"
+name = "obsidian-bracelet"
 version = "0.1.0"
 description = "Integrate multiple Obsidian vaults with conflict-aware merging and a review GUI."
 readme = "README.md"
@@ -42,8 +42,8 @@ dev = [
 ]
 
 [project.scripts]
-obsidian-merge = "obsidian_merger.cli:main"
-obsidian-merge-gui = "obsidian_merger.gui:main"
+obsidian-bracelet-merge = "obsidian_bracelet.cli:main"
+obsidian-bracelet-gui = "obsidian_bracelet.gui:main"
 
 [tool.ruff]
 line-length = 100
@@ -53,4 +53,4 @@ target-version = "py310"
 addopts = "-q"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/obsidian_merger"]
+packages = ["src/obsidian_bracelet"]
