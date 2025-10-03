@@ -1,0 +1,32 @@
+graph TD
+    A[User Input] --> B[CLI Interface]
+    B --> C[Planner Module]
+    C --> D[Generate Merge Plan]
+    D --> E[Action List]
+    E --> F[Apply Module]
+    F --> G[Execute Actions]
+    G --> H[Merged Vault]
+
+    C --> I[File Analysis]
+    I --> J[Conflict Detection]
+    J --> K[Merge Strategies]
+
+    F --> L[File Copying]
+    F --> M[Markdown Merging]
+    F --> N[Settings Merging]
+    F --> O[Link Updating]
+
+    P[Test Vaults] --> Q[Unit Tests]
+    P --> R[Integration Tests]
+
+    S[GUI Module] --> T[Gradio Interface]
+    T --> U[Plan Review]
+    U --> V[Interactive Apply]
+
+    classDef core fill:#e1f5fe
+    classDef test fill:#f3e5f5
+    classDef gui fill:#e8f5e8
+
+    class B,C,F core
+    class P,Q,R test
+    class S,T,U,V gui
