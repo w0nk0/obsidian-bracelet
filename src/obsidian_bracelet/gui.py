@@ -2,6 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 import json
 import customtkinter as ctk
+import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from .planner import build_plan
@@ -182,6 +183,5 @@ class App(ctk.CTk):
                 self.status_label.configure(text=f"Error applying plan: {e}", text_color="red")
 
 def main(source=None, target=None, plan_file=None):
-    import tkinter as tk
     app = App()
     app.mainloop()
