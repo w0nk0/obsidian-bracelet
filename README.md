@@ -4,14 +4,18 @@ A uv-managed Python tool to integrate multiple Obsidian vaults into a new merged
 
 ## Installation
 
+From source:
+
 ```bash
-pip install obsidian-bracelet
+git clone https://github.com/w0nk0/obsidian-bracelet.git
+cd obsidian-bracelet
+pip install -e .
 ```
 
-Or from source:
+For development with uv:
 
 ```bash
-git clone <repo>
+git clone https://github.com/w0nk0/obsidian-bracelet.git
 cd obsidian-bracelet
 uv sync --extra dev
 ```
