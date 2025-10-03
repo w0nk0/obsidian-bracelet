@@ -1,11 +1,11 @@
-# Obsidian Vault Integrator
+# Obsidian Bracelet
 
 A uv-managed Python tool to integrate multiple Obsidian vaults into a new merged vault with safe conflict handling and a review GUI for user approval before applying changes.
 
 ## Installation
 
 ```bash
-uv install obsidian-bracelet
+pip install obsidian-bracelet
 ```
 
 Or from source:
@@ -111,6 +111,27 @@ obsidian-bracelet-merge-gui --plan-file merged/plan.json
 ```bash
 obsidian-bracelet-merge apply merged/plan.json --dry-run
 ```
+
+## Running the GUI
+
+To launch the web-based GUI for reviewing and applying merge plans:
+
+```bash
+obsidian-bracelet-gui
+```
+
+Or from source:
+
+```bash
+uv run python -m obsidian_bracelet.gui
+```
+
+This starts a Flask web server at http://127.0.0.1:5000 where you can:
+
+- Enter source vault paths and target path
+- Build a merge plan
+- Review the actions in a table
+- Apply the plan with or without dry run
 
 ## Benefits
 
