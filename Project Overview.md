@@ -1,0 +1,105 @@
+# Obsidian Vault Integrator - Project Overview
+
+## Architecture Diagram
+
+```mermaid
+graph TD
+    A[User Input] --> B[CLI Interface]
+    B --> C[Planner Module]
+    C --> D[Generate Merge Plan]
+    D --> E[Action List]
+    E --> F[Apply Module]
+    F --> G[Execute Actions]
+    G --> H[Merged Vault]
+
+    C --> I[File Analysis]
+    I --> J[Conflict Detection]
+    J --> K[Merge Strategies]
+
+    F --> L[File Copying]
+    F --> M[Markdown Merging]
+    F --> N[Settings Merging]
+    F --> O[Link Updating]
+
+    P[Test Vaults] --> Q[Unit Tests]
+    P --> R[Integration Tests]
+
+    S[GUI Module] --> T[Gradio Interface]
+    T --> U[Plan Review]
+    U --> V[Interactive Apply]
+
+    classDef core fill:#e1f5fe
+    classDef test fill:#f3e5f5
+    classDef gui fill:#e8f5e8
+
+    class B,C,F core
+    class P,Q,R test
+    class S,T,U,V gui
+```
+
+## Usage Flow
+
+```mermaid
+flowchart LR
+    Start([Start]) --> Input[Provide Source Vaults & Target]
+    Input --> Plan[Generate Merge Plan]
+    Plan --> Review{Review Plan}
+    Review -->|Accept| Apply[Apply Merging]
+    Review -->|Modify| Plan
+    Apply --> Success([Success])
+    Review -->|GUI| GUI[Launch GUI for Review]
+    GUI --> Review
+```
+
+## Key Features
+
+- **Intelligent Merging**: Automatically detects file conflicts and merges markdown content with source attribution.
+- **Resource Management**: Moves linked files (CSV, images, etc.) to `!res/` directory and updates links.
+- **Conflict Resolution**: Handles filename collisions, identical content deduplication, and settings merging.
+- **GUI Review**: Optional graphical interface for reviewing merge plans before execution.
+- **Edge Case Handling**: Gracefully manages empty vaults, invalid structures, and permission issues.
+
+## File Structure
+
+```
+obsidian-vault-integrator/
+├── src/obsidian_merger/
+│   ├── __init__.py
+│   ├── cli.py           # Command-line interface
+│   ├── planner.py       # Merge planning logic
+│   ├── apply.py         # Action execution
+│   └── gui.py           # Gradio-based GUI
+├── tests/               # Unit tests
+├── test-vaults/         # Test data
+│   ├── personal-vault/
+│   ├── work-vault/
+│   └── merged-vault/
+├── pyproject.toml       # Project configuration
+└── README.md
+```
+
+## Usage Examples
+
+### Basic Merging
+```bash
+obsidian-merge plan -s vault1 -s vault2 -t merged
+obsidian-merge apply merged/plan.json
+```
+
+### With GUI
+```bash
+obsidian-merge-gui --plan-file merged/plan.json
+```
+
+### Dry Run
+```bash
+obsidian-merge apply merged/plan.json --dry-run
+```
+
+## Benefits
+
+- **Knowledge Integration**: Combine multiple Obsidian vaults without losing information.
+- **Conflict Awareness**: Clear indication of content origins in merged files.
+- **Organization**: Automatic organization of resources and settings.
+- **Safety**: Review plans before applying changes.
+- **Flexibility**: CLI and GUI interfaces for different user preferences.

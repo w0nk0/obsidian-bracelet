@@ -1,0 +1,14 @@
+{
+  "theme": "moonstone",
+  "baseFontSize": 14,
+  "enabledCssSnippets": [],
+  "accentColor": "#ea6962",
+  "cssTheme": "Things",
+  "nativeMenus": false,
+  "showViewHeader": true,
+  "focusNewTab": true,
+  "vimMode": false,
+  "alwaysUpdateLinks": true,
+  "showUnsupportedFiles": true,
+  "attachmentFolderPath": "resources"
+}

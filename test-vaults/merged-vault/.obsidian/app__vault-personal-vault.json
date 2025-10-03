@@ -1,0 +1,14 @@
+{
+  "theme": "obsidian",
+  "baseFontSize": 16,
+  "enabledCssSnippets": [],
+  "accentColor": "#7b68ee",
+  "cssTheme": "Minimal",
+  "nativeMenus": false,
+  "showViewHeader": true,
+  "focusNewTab": false,
+  "vimMode": false,
+  "alwaysUpdateLinks": true,
+  "showUnsupportedFiles": true,
+  "attachmentFolderPath": "assets"
+}
