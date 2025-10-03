@@ -1,7 +1,7 @@
 # Test Data for Obsidian Vault Merger
 
 ## Overview
-This directory contains realistic test data for testing the obsidian-vault-integrator functionality.
+This directory contains realistic test data for testing the obsidian-bracelet functionality.
 
 ## Test Vaults
 
@@ -60,17 +60,17 @@ Run the test cases using the commands in `Test Cases.md`:
 
 ```bash
 # Generate merge plan
-uv run python -m obsidian_merger.cli plan \
+uv run python -m obsidian_bracelet.cli plan \
   -s test-vaults/personal-vault \
   -s test-vaults/work-vault \
   -t test-vaults/merged-vault \
   -o test-merge-plan.json
 
 # Review plan
-uv run python -m obsidian_merger.cli gui --plan-file test-merge-plan.json
+uv run python -m obsidian_bracelet.cli gui --plan-file test-merge-plan.json
 
 # Apply merge
-uv run python -m obsidian_merger.cli apply test-merge-plan.json
+uv run python -m obsidian_bracelet.cli apply test-merge-plan.json
 ```
 
 ## Expected Merge Behavior

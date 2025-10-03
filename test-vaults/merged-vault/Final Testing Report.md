@@ -14,25 +14,25 @@ This report summarizes the execution of all test cases as outlined in `test-vaul
 - **Status**: Passed
 - **Objective**: Merge two vaults with distinct content.
 - **Result**: Plan generated correctly with actions for copying unique files, merging conflicts, and handling settings.
-- **Command**: `uv run python -m obsidian_merger.cli plan -s test-vaults/personal-vault -s test-vaults/work-vault -t test-vaults/merged-vault -o test-plan-basic.json`
+- **Command**: `uv run python -m obsidian_bracelet.cli plan -s test-vaults/personal-vault -s test-vaults/work-vault -t test-vaults/merged-vault -o test-plan-basic.json`
 
 ### Test Case 2: Content-Based Deduplication
 - **Status**: Passed
 - **Objective**: Ensure identical content is deduplicated.
 - **Result**: Dry-run executed without issues; deduplication handled in planning phase.
-- **Command**: `uv run python -m obsidian_merger.cli apply test-plan-basic.json --dry-run`
+- **Command**: `uv run python -m obsidian_bracelet.cli apply test-plan-basic.json --dry-run`
 
 ### Test Case 3: Filename Conflict Resolution
 - **Status**: Passed
 - **Objective**: Merge notes with same filenames but different content.
 - **Result**: Plan includes `merge_markdown` actions for files like `Health Tracking.md` and `Project Ideas.md`.
-- **Command**: `uv run python -m obsidian_merger.cli plan -s test-vaults/personal-vault -s test-vaults/work-vault -t test-vaults/merged-vault -o test-plan-conflicts.json`
+- **Command**: `uv run python -m obsidian_bracelet.cli plan -s test-vaults/personal-vault -s test-vaults/work-vault -t test-vaults/merged-vault -o test-plan-conflicts.json`
 
 ### Test Case 4: Daily Notes Merging
 - **Status**: Passed
 - **Objective**: Merge daily notes with same dates from different vaults.
 - **Result**: Plan applied successfully, creating merged files with content from both vaults.
-- **Command**: `uv run python -m obsidian_merger.cli apply test-plan-conflicts.json`
+- **Command**: `uv run python -m obsidian_bracelet.cli apply test-plan-conflicts.json`
 
 ### Test Case 5: GUI Review Process
 - **Status**: Skipped

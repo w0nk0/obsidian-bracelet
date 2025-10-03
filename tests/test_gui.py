@@ -4,7 +4,7 @@ import types
 
 import pytest
 
-from obsidian_merger.gui import _format_actions_by_type, build_plan_action
+from obsidian_bracelet.gui import _format_actions_by_type, build_plan_action
 
 
 @pytest.fixture

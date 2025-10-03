@@ -7,5 +7,5 @@ A Python tool to integrate multiple Obsidian vaults into a new merged vault with
 
 ### ✅ **Core Functionality: FULLY OPERATIONAL**
 
-**CLI Tool (`obsidian-merge`)**
+**CLI Tool (`obsidian-bracelet-merge`)**
 - ✅ `plan` command: Scans

@@ -1,7 +1,7 @@
 # Test Cases for Obsidian Vault Merger
 
 ## Overview
-This document outlines test cases for validating the obsidian-vault-integrator functionality using the provided test data in `test-vaults/`.
+This document outlines test cases for validating the obsidian-bracelet functionality using the provided test data in `test-vaults/`.
 
 ## Test Data Structure
 - **Personal Vault** (`test-vaults/personal-vault/`): Personal notes, health tracking, books, etc.
@@ -24,7 +24,7 @@ This document outlines test cases for validating the obsidian-vault-integrator f
 
 **Command to Test**:
 ```bash
-uv run python -m obsidian_merger.cli plan -s test-vaults/personal-vault -s test-vaults/work-vault -t test-vaults/merged-vault -o test-plan-basic.json
+uv run python -m obsidian_bracelet.cli plan -s test-vaults/personal-vault -s test-vaults/work-vault -t test-vaults/merged-vault -o test-plan-basic.json
 ```
 
 ## Test Case 2: Content-Based Deduplication
@@ -40,7 +40,7 @@ uv run python -m obsidian_merger.cli plan -s test-vaults/personal-vault -s test-
 
 **Command to Test**:
 ```bash
-uv run python -m obsidian_merger.cli apply test-plan-basic.json --dry-run
+uv run python -m obsidian_bracelet.cli apply test-plan-basic.json --dry-run
 ```
 
 ## Test Case 3: Filename Conflict Resolution
@@ -56,7 +56,7 @@ uv run python -m obsidian_merger.cli apply test-plan-basic.json --dry-run
 
 **Command to Test**:
 ```bash
-uv run python -m obsidian_merger.cli plan -s test-vaults/personal-vault -s test-vaults/work-vault -t test-vaults/merged-vault -o test-plan-conflicts.json
+uv run python -m obsidian_bracelet.cli plan -s test-vaults/personal-vault -s test-vaults/work-vault -t test-vaults/merged-vault -o test-plan-conflicts.json
 ```
 
 ## Test Case 4: Daily Notes Merging
@@ -72,7 +72,7 @@ uv run python -m obsidian_merger.cli plan -s test-vaults/personal-vault -s test-
 
 **Command to Test**:
 ```bash
-uv run python -m obsidian_merger.cli apply test-plan-conflicts.json
+uv run python -m obsidian_bracelet.cli apply test-plan-conflicts.json
 ```
 
 ## Test Case 5: GUI Review Process
@@ -91,7 +91,7 @@ uv run python -m obsidian_merger.cli apply test-plan-conflicts.json
 
 **Command to Test**:
 ```bash
-uv run python -m obsidian_merger.cli gui --plan-file test-plan-conflicts.json
+uv run python -m obsidian_bracelet.cli gui --plan-file test-plan-conflicts.json
 ```
 
 ## Test Case 6: Settings Merge
