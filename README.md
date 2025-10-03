@@ -44,7 +44,7 @@ graph TD
     P[Test Vaults] --> Q[Unit Tests]
     P --> R[Integration Tests]
 
-    S[GUI Module] --> T[Gradio Interface]
+    S[GUI Module] --> T[PySimpleGUI Interface]
     T --> U[Plan Review]
     U --> V[Interactive Apply]
 
@@ -76,7 +76,7 @@ flowchart LR
 - **Intelligent Merging**: Automatically detects file conflicts and merges markdown content with source attribution.
 - **Resource Management**: Moves linked files (CSV, images, etc.) to `!res/` directory and updates links.
 - **Conflict Resolution**: Handles filename collisions, identical content deduplication, and settings merging.
-- **GUI Review**: Optional graphical interface for reviewing merge plans before execution.
+- **GUI Review**: Optional desktop GUI for reviewing merge plans before execution.
 - **Edge Case Handling**: Gracefully manages empty vaults, invalid structures, and permission issues.
 
 ## File Structure
@@ -118,7 +118,7 @@ obsidian-bracelet-merge apply merged/plan.json --dry-run
 
 ## Running the GUI
 
-To launch the web-based GUI for reviewing and applying merge plans:
+To launch the desktop GUI for reviewing and applying merge plans:
 
 ```bash
 obsidian-bracelet-gui
@@ -130,12 +130,13 @@ Or from source:
 uv run python -m obsidian_bracelet.gui
 ```
 
-This starts a Flask web server at http://127.0.0.1:5000 where you can:
+This opens a PySimpleGUI window where you can:
 
-- Enter source vault paths and target path
-- Build a merge plan
-- Review the actions in a table
-- Apply the plan with or without dry run
+- Add source vault folders using the "Add Source Folder" button
+- Select the target vault folder using the "Browse" button
+- Build a merge plan with the "Build Plan" button
+- Review the actions in the table
+- Apply the plan with or without dry run using the "Apply Plan" button
 
 ## Benefits
 

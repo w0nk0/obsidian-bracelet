@@ -22,15 +22,15 @@ classifiers = [
 ]
 
 dependencies = [
-  "typer>=0.12",
-  "rich>=13.7",
-  "pydantic>=2.8",
-  "flask>=3.0",
-  "python-frontmatter>=1.0.1",
-  "ruamel.yaml>=0.18",
-  "pathspec>=0.12",
-  "rapidfuzz>=3.6",
-  "platformdirs>=4.2",
+   "typer>=0.12",
+   "rich>=13.7",
+   "pydantic>=2.8",
+   "PySimpleGUI>=4.60",
+   "python-frontmatter>=1.0.1",
+   "ruamel.yaml>=0.18",
+   "pathspec>=0.12",
+   "rapidfuzz>=3.6",
+   "platformdirs>=4.2",
 ]
 
 [project.optional-dependencies]
