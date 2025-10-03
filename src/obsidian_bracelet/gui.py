@@ -12,7 +12,7 @@ HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Obsidian Vault Merger</title>
+    <title>Obsidian Bracelet</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         form { margin-bottom: 20px; }
@@ -29,7 +29,7 @@ HTML_TEMPLATE = """
     </style>
 </head>
 <body>
-    <h1>Obsidian Vault Merger</h1>
+    <h1>Obsidian Bracelet</h1>
     {% if status %}
     <div class="status {{ 'success' if 'Success' in status else 'error' }}">{{ status }}</div>
     {% endif %}
