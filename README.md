@@ -1,5 +1,10 @@
 # Obsidian Bracelet
 
+![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Tests](https://img.shields.io/badge/tests-24%20passing-brightgreen.svg)
+![Release](https://img.shields.io/github/release/w0nk0/obsidian-bracelet.svg)
+
 A Python utility that intelligently merges multiple Obsidian vaults while handling conflicts, deduplicating identical content, and preserving file relationships through automatic link updating.
 
 ## Quick Start
