@@ -1,85 +1,41 @@
 # Obsidian Bracelet
 
-A uv-managed Python tool to integrate multiple Obsidian vaults into a new merged vault with safe conflict handling and a review GUI for user approval before applying changes.
+A Python utility that intelligently merges multiple Obsidian vaults while handling conflicts, deduplicating identical content, and preserving file relationships through automatic link updating.
 
-## Installation
-
-From source:
+## Quick Start
 
 ```bash
+# Install
 git clone https://github.com/w0nk0/obsidian-bracelet.git
 cd obsidian-bracelet
-pip install -e .
+uv sync
+
+# Basic merge
+uv run python -m obsidian_bracelet.cli plan -s vault1 -s vault2 -t merged -o plan.json
+uv run python -m obsidian_bracelet.cli apply plan.json
+
+# Launch GUI
+uv run python -m obsidian_bracelet.cli gui
 ```
 
-For development with uv:
+## Features
 
-```bash
-git clone https://github.com/w0nk0/obsidian-bracelet.git
-cd obsidian-bracelet
-uv sync --extra dev
-```
+- **Intelligent Merging**: Automatically detects file conflicts and merges markdown content with source attribution
+- **Content Deduplication**: Detects and deduplicates identical content, even with different filenames
+- **Link Updating**: Automatically updates links when files are deduplicated or moved
+- **File Exclusion**: Regex-based patterns to exclude unwanted files from merging
+- **Conflict Resolution**: Handles filename collisions, identical content deduplication, and settings merging
+- **GUI Review**: Modern desktop GUI with plan summary and sorted operations for easy review
+- **Robust Error Handling**: Gracefully manages invalid markdown, permission issues, and corrupted files
+- **Dry Run Mode**: Test merges before applying changes
 
-## Architecture Diagram
+## Documentation
 
-```mermaid
-graph TD
-    A[User Input] --> B[CLI Interface]
-    B --> C[Planner Module]
-    C --> D[Generate Merge Plan]
-    D --> E[Action List]
-    E --> F[Apply Module]
-    F --> G[Execute Actions]
-    G --> H[Merged Vault]
+- **[HOW_TO_USE.md](HOW_TO_USE.md)** - Complete usage guide with CLI, GUI, and programmatic examples
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current implementation status and features
+- **[tests/ROBUSTNESS_REPORT.md](tests/ROBUSTNESS_REPORT.md)** - Error handling and robustness analysis
 
-    C --> I[File Analysis]
-    I --> J[Conflict Detection]
-    J --> K[Merge Strategies]
-
-    F --> L[File Copying]
-    F --> M[Markdown Merging]
-    F --> N[Settings Merging]
-    F --> O[Link Updating]
-
-    P[Test Vaults] --> Q[Unit Tests]
-    P --> R[Integration Tests]
-
-    S[GUI Module] --> T[PySimpleGUI Interface]
-    T --> U[Plan Review]
-    U --> V[Interactive Apply]
-
-    classDef core fill:#e1f5fe
-    classDef test fill:#f3e5f5
-    classDef gui fill:#e8f5e8
-
-    class B,C,F core
-    class P,Q,R test
-    class S,T,U,V gui
-```
-
-## Usage Flow
-
-```mermaid
-flowchart LR
-    Start([Start]) --> Input[Provide Source Vaults & Target]
-    Input --> Plan[Generate Merge Plan]
-    Plan --> Review{Review Plan}
-    Review -->|Accept| Apply[Apply Merging]
-    Review -->|Modify| Plan
-    Apply --> Success([Success])
-    Review -->|GUI| GUI[Launch GUI for Review]
-    GUI --> Review
-```
-
-## Key Features
-
-- **Intelligent Merging**: Automatically detects file conflicts and merges markdown content with source attribution.
-- **Resource Management**: Moves linked files (CSV, images, etc.) to `!res/` directory and updates links.
-- **Conflict Resolution**: Handles filename collisions, identical content deduplication, and settings merging.
-- **GUI Review**: Optional desktop GUI for reviewing merge plans before execution.
-- **Edge Case Handling**: Gracefully manages empty vaults, invalid structures, and permission issues.
-
-## File Structure
+## Architecture
 
 ```
 obsidian-bracelet/
@@ -88,61 +44,33 @@ obsidian-bracelet/
 │   ├── cli.py           # Command-line interface
 │   ├── planner.py       # Merge planning logic
 │   ├── apply.py         # Action execution
-│   └── gui.py           # Gradio-based GUI
-├── tests/               # Unit tests
-├── test-vaults/         # Test data
-│   ├── personal-vault/
-│   ├── work-vault/
-│   └── merged-vault/
-├── pyproject.toml       # Project configuration
+│   └── gui.py           # Modern GUI with plan summary
+├── tests/               # Comprehensive test suite (24 tests)
+├── test-vaults/         # Test data and scenarios
+├── docs/                # Architecture diagrams
+├── HOW_TO_USE.md        # Usage guide
+├── PROJECT_STATUS.md    # Implementation status
 └── README.md
 ```
 
-## Usage Examples
-
-### Basic Merging
-```bash
-obsidian-bracelet-merge plan -s vault1 -s vault2 -t merged
-obsidian-bracelet-merge apply merged/plan.json
-```
-
-### With GUI
-```bash
-obsidian-bracelet-merge-gui --plan-file merged/plan.json
-```
-
-### Dry Run
-```bash
-obsidian-bracelet-merge apply merged/plan.json --dry-run
-```
-
-## Running the GUI
-
-To launch the desktop GUI for reviewing and applying merge plans:
+## Testing
 
 ```bash
-obsidian-bracelet-gui
+# Run all tests
+uv run pytest tests/ -v
+
+# Run specific test categories
+uv run pytest tests/test_planner.py -v      # Core functionality
+uv run pytest tests/test_apply.py -v       # End-to-end tests
+uv run pytest tests/test_invalid_markdown.py -v  # Robustness tests
 ```
 
-Or from source:
+## Requirements
 
-```bash
-uv run python -m obsidian_bracelet.gui
-```
+- Python 3.8 or higher
+- `uv` package manager (recommended) or pip
+- For GUI: Desktop environment (Linux, macOS, or Windows)
 
-This opens a PySimpleGUI window where you can:
+## License
 
-- Add source vault folders using the "Add Source Folder" button
-- Select the target vault folder using the "Browse" button
-- Build a merge plan with the "Build Plan" button
-- Review the actions in the table
-- Apply the plan with or without dry run using the "Apply Plan" button
-
-## Benefits
-
-- **Knowledge Integration**: Combine multiple Obsidian vaults without losing information.
-- **Conflict Awareness**: Clear indication of content origins in merged files.
-- **Organization**: Automatic organization of resources and settings.
-- **Safety**: Review plans before applying changes.
-- **Flexibility**: CLI and GUI interfaces for different user preferences.
-
+See [LICENSE](LICENSE) file for details.
