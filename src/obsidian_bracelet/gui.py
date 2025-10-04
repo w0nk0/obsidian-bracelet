@@ -23,6 +23,10 @@ def _format_actions_by_type(plan: dict):
             row = (i, t, ",".join(a.get("sources", [])), a.get("dest", ""))
         elif t == "mkdir":
             row = (i, t, a.get("path", "."), "")
+        elif t == "create_link_file":
+            row = (i, t, "", a.get("link_to", ""))
+        elif t == "update_file_links":
+            row = (i, t, a.get("file", ""), f"Updates: {len(a.get('link_updates', {}))} links")
         else:
             row = (i, t or "", "", "")
         all_rows.append(row)
@@ -72,6 +76,16 @@ class App(ctk.CTk):
 
         self.browse_target_btn = ctk.CTkButton(self.target_frame, text="Browse", command=self.browse_target)
         self.browse_target_btn.pack(side="right", padx=(0,10), pady=(0,10))
+
+        # Ignore patterns
+        self.ignore_frame = ctk.CTkFrame(self)
+        self.ignore_frame.pack(pady=10, padx=20, fill="x")
+
+        self.ignore_label = ctk.CTkLabel(self.ignore_frame, text="Ignore Patterns (regex, comma-separated):", font=ctk.CTkFont(weight="bold"))
+        self.ignore_label.pack(anchor="w", padx=10, pady=(10,5))
+
+        self.ignore_entry = ctk.CTkEntry(self.ignore_frame, placeholder_text="e.g., \\.tmp$, backup/.*")
+        self.ignore_entry.pack(fill="x", padx=10, pady=(0,10))
 
         # Build button
         self.build_btn = ctk.CTkButton(self, text="Build Plan", command=self.build_plan, fg_color="green", font=ctk.CTkFont(size=14, weight="bold"))
@@ -154,8 +168,10 @@ class App(ctk.CTk):
             self.status_label.configure(text="Please select a target vault path.", text_color="red")
             return
         target = Path(target_text)
+        ignore_text = self.ignore_entry.get()
+        ignore_patterns = [p.strip() for p in ignore_text.split(',') if p.strip()]
         try:
-            self.plan = build_plan(self.sources, target)
+            self.plan = build_plan(self.sources, target, ignore_patterns=ignore_patterns)
             all_rows = _format_actions_by_type(self.plan)
             self.tree.delete(*self.tree.get_children())
             for row in all_rows:
@@ -163,7 +179,7 @@ class App(ctk.CTk):
             self.table_label.pack(anchor="w", padx=20, pady=(10,5))
             self.tree.pack(pady=5, padx=20, fill="x")
             self.apply_frame.pack(pady=10, padx=20, fill="x")
-            notes = json.dumps({"notes": self.plan.get("notes", []), "warnings": self.plan.get("warnings", [])}, indent=2)
+            notes = json.dumps({"notes": self.plan.get("notes", []), "warnings": self.plan.get("warnings", []), "excluded_files": self.plan.get("excluded_files", [])}, indent=2)
             self.notes_textbox.delete("0.0", tk.END)
             self.notes_textbox.insert("0.0", notes)
             self.notes_label.pack(anchor="w", padx=20, pady=(10,5))
@@ -181,6 +197,25 @@ class App(ctk.CTk):
                 self.status_label.configure(text=status, text_color="green")
             except Exception as e:
                 self.status_label.configure(text=f"Error applying plan: {e}", text_color="red")
+
+def build_plan_action(sources_str: str, target_str: str) -> tuple:
+    sources = [Path(s.strip()) for s in sources_str.split('\n') if s.strip()]
+    target = Path(target_str)
+    if not sources or not target_str:
+        return "", [], {}, "Please provide at least one source vault and a target path.", [], [], [], []
+    try:
+        plan = build_plan(sources, target)
+        all_rows = _format_actions_by_type(plan)
+        copy_table = [r for r in all_rows if r[1] == "copy"]
+        md_table = [r for r in all_rows if r[1] == "merge_markdown"]
+        rename_table = [r for r in all_rows if r[1] == "rename_copy"]
+        settings_table = [r for r in all_rows if r[1] == "merge_settings"]
+        plan_json = json.dumps(plan, indent=2)
+        details = json.dumps({"notes": plan.get("notes", []), "warnings": plan.get("warnings", []), "excluded_files": plan.get("excluded_files", [])}, indent=2)
+        return plan_json, all_rows, details, "", md_table, rename_table, settings_table, copy_table
+    except Exception as e:
+        return "", [], {}, str(e), [], [], [], []
+
 
 def main(source=None, target=None, plan_file=None):
     app = App()

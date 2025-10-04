@@ -13,10 +13,11 @@ def main():
 def plan(
     source: list[Path] = typer.Option(..., "--source", "-s", exists=True, file_okay=False, dir_okay=True, readable=True, help="Path to a source Obsidian vault (repeatable)"),
     target: Path = typer.Option(..., "--target", "-t", file_okay=False, dir_okay=True, help="Directory where the merged vault will be created"),
+    ignore_patterns: list[str] = typer.Option([], "--ignore", "-i", help="Regex patterns to ignore files (repeatable)"),
     output: Path = typer.Option("merge-plan.json", "--output", "-o", help="Where to write the plan JSON"),
 ):
     from .planner import build_plan
-    plan = build_plan([Path(p).resolve() for p in source], Path(target).resolve())
+    plan = build_plan([Path(p).resolve() for p in source], Path(target).resolve(), ignore_patterns=ignore_patterns)
     output.write_text(json.dumps(plan, indent=2, ensure_ascii=False))
     print(f"[green]Wrote plan:[/green] {output}")
 

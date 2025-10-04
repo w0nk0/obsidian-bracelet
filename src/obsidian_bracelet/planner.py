@@ -5,11 +5,20 @@ import re
 from collections import defaultdict
 
 def _sha256(p: Path) -> str:
-    h = hashlib.sha256()
-    with p.open("rb") as f:
-        for chunk in iter(lambda: f.read(1 << 16), b""):
-            h.update(chunk)
-    return h.hexdigest()
+    try:
+        h = hashlib.sha256()
+        with p.open("rb") as f:
+            for chunk in iter(lambda: f.read(1 << 16), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except (OSError, PermissionError, IOError) as e:
+        # Return a hash based on filename and size if file can't be read
+        try:
+            stat_info = p.stat()
+            return hashlib.sha256(f"{p.name}_{stat_info.st_size}".encode()).hexdigest()
+        except (OSError, PermissionError, IOError):
+            # Fallback to filename only
+            return hashlib.sha256(p.name.encode()).hexdigest()
 
 def _rel_files(vault: Path):
     # All files except .obsidian/workspace.json (ephemeral)
@@ -34,11 +43,14 @@ def _extract_links(content: str) -> set[str]:
             links.add(link)
     return links
 
-def build_plan(sources: list[Path], target: Path) -> dict:
+def build_plan(sources: list[Path], target: Path, ignore_patterns: list[str] = None) -> dict:
+    if ignore_patterns is None:
+        ignore_patterns = []
     assert sources, "At least one source vault required"
     actions = []
     notes = []
     warnings = []
+    excluded = []
 
     # Map relpath -> list of (vault_name, abs_path, hash)
     index = defaultdict(list)
@@ -47,8 +59,20 @@ def build_plan(sources: list[Path], target: Path) -> dict:
             warnings.append(f"{s} does not look like an Obsidian vault (missing .obsidian)")
         vname = s.name
         for rel in _rel_files(s):
+            skip = False
+            for pattern in ignore_patterns:
+                if re.search(pattern, str(rel)):
+                    excluded.append(f"{vname}:{str(rel)}")
+                    skip = True
+                    break
+            if skip:
+                continue
             ap = s / rel
-            index[str(rel)].append((vname, ap, _sha256(ap)))
+            try:
+                index[str(rel)].append((vname, ap, _sha256(ap)))
+            except Exception as e:
+                warnings.append(f"Skipping {vname}:{str(rel)} due to error: {e}")
+                continue
 
     # Ensure base target dir creation
     actions.append({"type": "mkdir", "path": "."})
@@ -130,10 +154,66 @@ def build_plan(sources: list[Path], target: Path) -> dict:
     # Basic .obsidian settings merge placeholders
     actions.append({"type": "merge_settings", "sources": [str(s) for s in sources], "dest": str(Path(target) / ".obsidian")})
 
+    # Deduplicate same content across different names
+    dest_hashes = {}
+    for act in actions:
+        if act["type"] == "copy":
+            h = _sha256(Path(act["src"]))
+            dest_hashes[act["dest"]] = h
+
+    hash_to_dests = defaultdict(list)
+    for dest, h in dest_hashes.items():
+        hash_to_dests[h].append(dest)
+
+    replaced_files = {}  # old_path -> new_path
+    for h, dests in hash_to_dests.items():
+        if len(dests) > 1:
+            dests.sort()
+            kept = dests[0]
+            for d in dests[1:]:
+                replaced_files[d] = kept
+                for act in actions:
+                    if act.get("dest") == d and act["type"] == "copy":
+                        act["type"] = "create_link_file"
+                        act["link_to"] = kept
+                        del act["src"]
+                        rel_d = Path(d).relative_to(target)
+                        rel_kept = Path(kept).relative_to(target)
+                        notes.append(f"Deduplicated same content: {rel_d} -> {rel_kept}")
+                        break
+
+    # Update links that point to replaced files
+    if replaced_files:
+        # Find all actions that copy files that might contain links
+        for act in actions:
+            if act["type"] in ("copy", "merge_markdown") and act.get("dest", "").endswith(".md"):
+                src_path = act.get("src")
+                if src_path and Path(src_path).exists():
+                    try:
+                        content = Path(src_path).read_text(encoding="utf-8", errors="ignore")
+                        needs_update = False
+                        for old_path, new_path in replaced_files.items():
+                            old_rel = Path(old_path).relative_to(target)
+                            new_rel = Path(new_path).relative_to(target)
+                            # Check for wiki links [[old_rel]] or markdown links [text](old_rel)
+                            if f"[[{old_rel}]]" in content or f"]({old_rel})" in content:
+                                needs_update = True
+                                break
+                        if needs_update:
+                            # Add an update_links action for this file
+                            actions.append({
+                                "type": "update_file_links",
+                                "file": act["dest"],
+                                "link_updates": {old_path: new_path for old_path, new_path in replaced_files.items()}
+                            })
+                    except Exception:
+                        pass  # Skip files that can't be read
+
     return {
         "target_root": str(target),
         "actions": actions,
         "notes": notes,
         "warnings": warnings,
         "sources": [str(s) for s in sources],
+        "excluded_files": excluded,
     }

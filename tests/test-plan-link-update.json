@@ -1,0 +1,53 @@
+{
+  "target_root": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged",
+  "actions": [
+    {
+      "type": "mkdir",
+      "path": "."
+    },
+    {
+      "type": "create_link_file",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/Ideas.md",
+      "link_to": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/Concepts.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/vault1/Main.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/Main.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/vault2/Concepts.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/Concepts.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/vault2/.obsidian/app.json",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/.obsidian/app.json"
+    },
+    {
+      "type": "merge_settings",
+      "sources": [
+        "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/vault1",
+        "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/vault2"
+      ],
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/.obsidian"
+    },
+    {
+      "type": "update_file_links",
+      "file": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/Main.md",
+      "link_updates": {
+        "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/Ideas.md": "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/merged/Concepts.md"
+      }
+    }
+  ],
+  "notes": [
+    "Deduplicated same content: Ideas.md -> Concepts.md"
+  ],
+  "warnings": [],
+  "sources": [
+    "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/vault1",
+    "/home/nico/python/obsidian-vault-integrator/test-vaults/same-content-different-names/vault2"
+  ],
+  "excluded_files": []
+}

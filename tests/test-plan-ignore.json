@@ -1,0 +1,57 @@
+{
+  "target_root": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault",
+  "actions": [
+    {
+      "type": "mkdir",
+      "path": "."
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/data.csv",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/data.csv"
+    },
+    {
+      "type": "rename_copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault/.obsidian/app.json",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/.obsidian/app__vault-personal-vault.json"
+    },
+    {
+      "type": "rename_copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-vaults/work-vault/.obsidian/app.json",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/.obsidian/app__vault-work-vault.json"
+    },
+    {
+      "type": "merge_settings",
+      "sources": [
+        "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault",
+        "/home/nico/python/obsidian-vault-integrator/test-vaults/work-vault"
+      ],
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-vaults/merged-vault/.obsidian"
+    }
+  ],
+  "notes": [],
+  "warnings": [
+    "Collision on .obsidian/app.json: proposing 2 renamed copies"
+  ],
+  "sources": [
+    "/home/nico/python/obsidian-vault-integrator/test-vaults/personal-vault",
+    "/home/nico/python/obsidian-vault-integrator/test-vaults/work-vault"
+  ],
+  "excluded_files": [
+    "personal-vault:Daily Routines.md",
+    "personal-vault:Health Tracking.md",
+    "personal-vault:Project Ideas.md",
+    "personal-vault:Books to Read.md",
+    "personal-vault:2024-10-01.md",
+    "personal-vault:2024-10-02.md",
+    "personal-vault:Travel Plans.md",
+    "work-vault:Team Meeting Notes.md",
+    "work-vault:Project Ideas.md",
+    "work-vault:Health Tracking.md",
+    "work-vault:API Documentation.md",
+    "work-vault:2024-10-01.md",
+    "work-vault:2024-10-02.md",
+    "work-vault:System Architecture.md",
+    "work-vault:Final Testing Report.md"
+  ]
+}
