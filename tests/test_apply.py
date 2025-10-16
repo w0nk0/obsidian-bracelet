@@ -5,11 +5,8 @@ Test Case Mapping for tests/test_apply.py:
 - test_apply_daily_notes_merge: Corresponds to Test Case 4 in test-vaults/Test Cases.md (Daily Notes Merging)
 """
 
-import json
 from pathlib import Path
 import pytest
-import tempfile
-import shutil
 
 from obsidian_bracelet.planner import build_plan
 from obsidian_bracelet.apply import apply_plan
@@ -67,7 +64,7 @@ def test_apply_basic_merge(basic_vault_setup):
     assert (target / "Books to Read.md").exists()
     assert (target / "Daily Routines.md").exists()
     assert (target / "Travel Plans.md").exists()
-    assert (target / "data.csv").exists()
+    assert (target / "!res" / "data.csv").exists()
     assert (target / "Team Meeting Notes.md").exists()
     assert (target / "API Documentation.md").exists()
     assert (target / "System Architecture.md").exists()
