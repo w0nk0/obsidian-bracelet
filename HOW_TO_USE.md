@@ -97,6 +97,34 @@ apply_plan(plan)
 - **Settings Handling**: Merges Obsidian configuration files safely
 - **Dry Run Mode**: Test merges before applying changes
 
+### 4. Vault Indexing
+
+Generate chronological indexes of your vault files based on their creation and modification dates:
+
+```bash
+# Generate index files
+uv run python -m obsidian_bracelet.indexer /path/to/vault
+
+# Add date tags to files with frontmatter
+uv run python -m obsidian_bracelet.indexer /path/to/vault --update-tags
+
+# Preview what would be generated
+uv run python -m obsidian_bracelet.indexer /path/to/vault --dry-run
+
+# Specify output directory
+uv run python -m obsidian_bracelet.indexer /path/to/vault --output-dir /path/to/output
+
+# Overwrite existing index files
+uv run python -m obsidian_bracelet.indexer /path/to/vault --overwrite
+```
+
+The indexer creates:
+- **Monthly index files** (`CREATED2025_10.md`, `MODIFIED2025_10.md`) with separate sections for text and media files
+- **Yearly index files** (`CREATED2025.md`, `MODIFIED2025.md`) linking to monthly indexes
+- Optional date tags (`CREATED2025`, `MODIFIED2025_10`) added to files with frontmatter when using `--update-tags`
+
+Files are automatically categorized as text (markdown, code, documents) or media (images, videos, audio) based on their extensions.
+
 ## Testing
 
 Run the test suite to verify functionality:

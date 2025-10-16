@@ -33,6 +33,7 @@ uv run python -m obsidian_bracelet.cli gui
 - **GUI Review**: Modern desktop GUI with plan summary and sorted operations for easy review
 - **Robust Error Handling**: Gracefully manages invalid markdown, permission issues, and corrupted files
 - **Dry Run Mode**: Test merges before applying changes
+- **Vault Indexing**: Generate chronological indexes of vault files based on creation and modification dates
 
 ## Documentation
 
@@ -49,7 +50,8 @@ obsidian-bracelet/
 │   ├── cli.py           # Command-line interface
 │   ├── planner.py       # Merge planning logic
 │   ├── apply.py         # Action execution
-│   └── gui.py           # Modern GUI with plan summary
+│   ├── gui.py           # Modern GUI with plan summary
+│   └── indexer.py       # Vault indexing utility
 ├── tests/               # Comprehensive test suite (24 tests)
 ├── test-vaults/         # Test data and scenarios
 ├── docs/                # Architecture diagrams
