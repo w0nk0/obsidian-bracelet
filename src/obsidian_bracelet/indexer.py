@@ -15,7 +15,7 @@ from collections import defaultdict
 import sys
 import re
 import yaml
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 # File type classifications
 TEXT_EXTENSIONS = {
@@ -118,12 +118,13 @@ def update_file_tags(file_path: Path, year_tag: str, month_tag: str) -> bool:
     except (OSError, PermissionError):
         return False
 
-def collect_files(vault_path: Path) -> Dict[str, Dict[str, Dict[str, List[Dict]]]]:
+def collect_files(vault_path: Path) -> tuple[Dict, Dict]:
     """
     Collect all files in the vault and organize them by year, month, and type.
+    Tracks both creation and modification dates.
     
     Returns:
-        Nested dictionary structure:
+        Tuple of two nested dictionaries (created_data, modified_data):
         {
             "YYYY": {
                 "YYYY_MM": {
@@ -135,10 +136,11 @@ def collect_files(vault_path: Path) -> Dict[str, Dict[str, Dict[str, List[Dict]]
             ...
         }
     """
-    file_data = defaultdict(lambda: defaultdict(lambda: {"text_files": [], "media_files": []}))
+    created_data = defaultdict(lambda: defaultdict(lambda: {"text_files": [], "media_files": []}))
+    modified_data = defaultdict(lambda: defaultdict(lambda: {"text_files": [], "media_files": []}))
     
     # Skip .obsidian directory and index files
-    skip_patterns = {'.obsidian', 'YEAR', 'MONTH'}
+    skip_patterns = {'.obsidian', 'YEAR', 'MONTH', 'CREATED', 'MODIFIED'}
     
     for file_path in vault_path.rglob("*"):
         # Skip directories and special patterns
@@ -154,45 +156,57 @@ def collect_files(vault_path: Path) -> Dict[str, Dict[str, Dict[str, List[Dict]]
         # Get file stats
         try:
             stat = file_path.stat()
-            mtime = datetime.fromtimestamp(stat.st_mtime)
+            ctime = datetime.fromtimestamp(stat.st_ctime)  # Creation time on Unix, metadata change on Windows
+            mtime = datetime.fromtimestamp(stat.st_mtime)  # Modification time
             size = stat.st_size
         except (OSError, PermissionError):
             continue
             
-        # Get year and month
-        year = mtime.strftime("%Y")
-        month_key = f"{year}_{mtime.strftime('%m')}"
-        
         # Get relative path
         rel_path = file_path.relative_to(vault_path)
         
-        # Create file info
-        file_info = {
+        # Create file info for creation date
+        created_year = ctime.strftime("%Y")
+        created_month_key = f"{created_year}_{ctime.strftime('%m')}"
+        created_file_info = {
+            "path": str(rel_path),
+            "date": ctime.strftime("%Y-%m-%d"),
+            "size": size
+        }
+        
+        # Create file info for modification date
+        modified_year = mtime.strftime("%Y")
+        modified_month_key = f"{modified_year}_{mtime.strftime('%m')}"
+        modified_file_info = {
             "path": str(rel_path),
             "date": mtime.strftime("%Y-%m-%d"),
             "size": size
         }
         
-        # Categorize by type
+        # Categorize by type for both creation and modification
         if is_text_file(file_path):
-            file_data[year][month_key]["text_files"].append(file_info)
+            created_data[created_year][created_month_key]["text_files"].append(created_file_info)
+            modified_data[modified_year][modified_month_key]["text_files"].append(modified_file_info)
         elif is_media_file(file_path):
-            file_data[year][month_key]["media_files"].append(file_info)
+            created_data[created_year][created_month_key]["media_files"].append(created_file_info)
+            modified_data[modified_year][modified_month_key]["media_files"].append(modified_file_info)
         else:
             # Treat unknown files as media
-            file_data[year][month_key]["media_files"].append(file_info)
+            created_data[created_year][created_month_key]["media_files"].append(created_file_info)
+            modified_data[modified_year][modified_month_key]["media_files"].append(modified_file_info)
     
     # Sort files by date within each category
-    for year_data in file_data.values():
-        for month_data in year_data.values():
-            month_data["text_files"].sort(key=lambda x: x["date"])
-            month_data["media_files"].sort(key=lambda x: x["date"])
+    for data_dict in [created_data, modified_data]:
+        for year_data in data_dict.values():
+            for month_data in year_data.values():
+                month_data["text_files"].sort(key=lambda x: x["date"])
+                month_data["media_files"].sort(key=lambda x: x["date"])
     
-    return dict(file_data)
+    return dict(created_data), dict(modified_data)
 
-def generate_monthly_index(year: str, month_key: str, month_data: Dict, output_dir: Path) -> Path:
+def generate_monthly_index(year: str, month_key: str, month_data: Dict, output_dir: Path, prefix: str = "MONTH") -> Path:
     """Generate a monthly index file."""
-    filename = f"MONTH{month_key}.md"
+    filename = f"{prefix}{month_key}.md"
     output_path = output_dir / filename
     
     # Parse month for display
@@ -238,9 +252,9 @@ def generate_monthly_index(year: str, month_key: str, month_data: Dict, output_d
     
     return output_path
 
-def generate_yearly_index(year: str, year_data: Dict, output_dir: Path) -> Path:
+def generate_yearly_index(year: str, year_data: Dict, output_dir: Path, prefix: str = "YEAR") -> Path:
     """Generate a yearly index file."""
-    filename = f"YEAR{year}.md"
+    filename = f"{prefix}{year}.md"
     output_path = output_dir / filename
     
     # Build content
@@ -255,7 +269,7 @@ def generate_yearly_index(year: str, year_data: Dict, output_dir: Path) -> Path:
     sorted_months = sorted(year_data.keys(), key=lambda x: (x.split("_")[0], x.split("_")[1]))
     
     for month_key in sorted_months:
-        month_file = f"MONTH{month_key}.md"
+        month_file = f"{prefix}{month_key}.md"
         wiki_link = f"[[{month_file}]]"
         
         # Parse month for display
@@ -295,7 +309,7 @@ def generate_indexes(vault_path: Path, output_dir: Optional[Path] = None, overwr
     
     # Check for existing index files
     existing_files = set()
-    for pattern in ["YEAR*.md", "MONTH*.md"]:
+    for pattern in ["YEAR*.md", "MONTH*.md", "CREATED*.md", "MODIFIED*.md"]:
         existing_files.update(output_dir.glob(pattern))
     
     if existing_files and not overwrite:
@@ -304,9 +318,9 @@ def generate_indexes(vault_path: Path, output_dir: Optional[Path] = None, overwr
     
     # Collect file data
     print(f"Scanning vault: {vault_path}")
-    file_data = collect_files(vault_path)
+    created_data, modified_data = collect_files(vault_path)
     
-    if not file_data:
+    if not created_data and not modified_data:
         print("No files found to index.")
         return
     
@@ -314,10 +328,24 @@ def generate_indexes(vault_path: Path, output_dir: Optional[Path] = None, overwr
     if update_tags:
         print("\nUpdating tags in files...")
         updated_count = 0
-        for year, year_data in file_data.items():
-            year_tag = f"YEAR{year}"
+        
+        # Update tags based on creation date
+        for year, year_data in created_data.items():
+            year_tag = f"CREATED{year}"
             for month_key, month_data in year_data.items():
-                month_tag = f"MONTH{month_key}"
+                month_tag = f"CREATED{month_key}"
+                
+                # Update text files
+                for file_info in month_data["text_files"]:
+                    file_path = vault_path / file_info["path"]
+                    if update_file_tags(file_path, year_tag, month_tag):
+                        updated_count += 1
+        
+        # Update tags based on modification date
+        for year, year_data in modified_data.items():
+            year_tag = f"MODIFIED{year}"
+            for month_key, month_data in year_data.items():
+                month_tag = f"MODIFIED{month_key}"
                 
                 # Update text files
                 for file_info in month_data["text_files"]:
@@ -327,23 +355,41 @@ def generate_indexes(vault_path: Path, output_dir: Optional[Path] = None, overwr
         
         print(f"Updated tags in {updated_count} files.")
     
-    # Generate monthly indexes
-    monthly_files = []
-    for year, year_data in file_data.items():
+    # Generate monthly indexes for created files
+    created_monthly_files = []
+    for year, year_data in created_data.items():
         for month_key, month_data in year_data.items():
             if month_data["text_files"] or month_data["media_files"]:
-                monthly_file = generate_monthly_index(year, month_key, month_data, output_dir)
-                monthly_files.append(monthly_file)
+                monthly_file = generate_monthly_index(year, month_key, month_data, output_dir, prefix="CREATED")
+                created_monthly_files.append(monthly_file)
                 print(f"Created: {monthly_file.name}")
     
-    # Generate yearly indexes
-    yearly_files = []
-    for year, year_data in file_data.items():
-        yearly_file = generate_yearly_index(year, year_data, output_dir)
-        yearly_files.append(yearly_file)
+    # Generate yearly indexes for created files
+    created_yearly_files = []
+    for year, year_data in created_data.items():
+        yearly_file = generate_yearly_index(year, year_data, output_dir, prefix="CREATED")
+        created_yearly_files.append(yearly_file)
         print(f"Created: {yearly_file.name}")
     
-    print(f"\nGenerated {len(monthly_files)} monthly and {len(yearly_files)} yearly index files.")
+    # Generate monthly indexes for modified files
+    modified_monthly_files = []
+    for year, year_data in modified_data.items():
+        for month_key, month_data in year_data.items():
+            if month_data["text_files"] or month_data["media_files"]:
+                monthly_file = generate_monthly_index(year, month_key, month_data, output_dir, prefix="MODIFIED")
+                modified_monthly_files.append(monthly_file)
+                print(f"Created: {monthly_file.name}")
+    
+    # Generate yearly indexes for modified files
+    modified_yearly_files = []
+    for year, year_data in modified_data.items():
+        yearly_file = generate_yearly_index(year, year_data, output_dir, prefix="MODIFIED")
+        modified_yearly_files.append(yearly_file)
+        print(f"Created: {yearly_file.name}")
+    
+    total_monthly = len(created_monthly_files) + len(modified_monthly_files)
+    total_yearly = len(created_yearly_files) + len(modified_yearly_files)
+    print(f"\nGenerated {total_monthly} monthly and {total_yearly} yearly index files.")
 
 def main():
     """Main entry point for the CLI."""
@@ -395,14 +441,27 @@ def main():
     if args.dry_run:
         print("DRY RUN - No files will be created")
         # Collect file data to show what would be generated
-        file_data = collect_files(args.vault_path)
-        if file_data:
+        created_data, modified_data = collect_files(args.vault_path)
+        if created_data or modified_data:
             print("\nWould generate the following index files:")
-            for year in file_data:
-                print(f"  YEAR{year}.md")
-                for month_key in file_data[year]:
-                    if file_data[year][month_key]["text_files"] or file_data[year][month_key]["media_files"]:
-                        print(f"  MONTH{month_key}.md")
+            
+            # Created files
+            if created_data:
+                print("  Created files:")
+                for year in created_data:
+                    print(f"    CREATED{year}.md")
+                    for month_key in created_data[year]:
+                        if created_data[year][month_key]["text_files"] or created_data[year][month_key]["media_files"]:
+                            print(f"    CREATED{month_key}.md")
+            
+            # Modified files
+            if modified_data:
+                print("  Modified files:")
+                for year in modified_data:
+                    print(f"    MODIFIED{year}.md")
+                    for month_key in modified_data[year]:
+                        if modified_data[year][month_key]["text_files"] or modified_data[year][month_key]["media_files"]:
+                            print(f"    MODIFIED{month_key}.md")
         else:
             print("No files found to index.")
     else:
