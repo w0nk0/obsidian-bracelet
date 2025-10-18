@@ -103,12 +103,16 @@ class App(ctk.CTk):
 
         self.sources = []
 
+        # Create a scrollable frame for the entire content
+        self.scrollable_frame = ctk.CTkScrollableFrame(self)
+        self.scrollable_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
         # Title
-        self.title_label = ctk.CTkLabel(self, text="Obsidian Bracelet", font=ctk.CTkFont(size=24, weight="bold"))
+        self.title_label = ctk.CTkLabel(self.scrollable_frame, text="Obsidian Bracelet", font=ctk.CTkFont(size=24, weight="bold"))
         self.title_label.pack(pady=10)
 
         # Source and Target vaults in two columns
-        self.vaults_frame = ctk.CTkFrame(self)
+        self.vaults_frame = ctk.CTkFrame(self.scrollable_frame)
         self.vaults_frame.pack(pady=10, padx=20, fill="x")
 
         # Left column - Source vaults
@@ -144,7 +148,7 @@ class App(ctk.CTk):
         self.browse_target_btn.pack(pady=(0,10))
 
         # Ignore patterns
-        self.ignore_frame = ctk.CTkFrame(self)
+        self.ignore_frame = ctk.CTkFrame(self.scrollable_frame)
         self.ignore_frame.pack(pady=10, padx=20, fill="x")
 
         self.ignore_label = ctk.CTkLabel(self.ignore_frame, text="Ignore Patterns (regex, comma-separated):", font=ctk.CTkFont(weight="bold"))
@@ -154,15 +158,24 @@ class App(ctk.CTk):
         self.ignore_entry.pack(fill="x", padx=10, pady=(0,10))
 
         # Build button
-        self.build_btn = ctk.CTkButton(self, text="Build Plan", command=self.build_plan, fg_color="green", font=ctk.CTkFont(size=14, weight="bold"))
+        self.build_btn = ctk.CTkButton(self.scrollable_frame, text="Build Plan", command=self.build_plan, fg_color="green", font=ctk.CTkFont(size=14, weight="bold"))
         self.build_btn.pack(pady=10)
 
         # Status
-        self.status_label = ctk.CTkLabel(self, text="", font=ctk.CTkFont(size=12, slant="italic"))
+        self.status_label = ctk.CTkLabel(self.scrollable_frame, text="", font=ctk.CTkFont(size=12, slant="italic"))
         self.status_label.pack(pady=5)
 
+        # Verbose logging field - moved to be right after Build Plan button
+        self.logging_label = ctk.CTkLabel(self.scrollable_frame, text="Planning Log:", font=ctk.CTkFont(weight="bold"))
+        self.logging_label.pack(anchor="w", padx=20, pady=(10,5))
+        self.logging_label.pack_forget()
+
+        self.logging_textbox = ctk.CTkTextbox(self.scrollable_frame, wrap="word", height=150)
+        self.logging_textbox.pack(pady=5, padx=20, fill="both", expand=True)
+        self.logging_textbox.pack_forget()
+
         # Plan Summary
-        self.summary_frame = ctk.CTkFrame(self)
+        self.summary_frame = ctk.CTkFrame(self.scrollable_frame)
         self.summary_frame.pack(pady=10, padx=20, fill="x")
         self.summary_frame.pack_forget()
 
@@ -173,11 +186,16 @@ class App(ctk.CTk):
         self.summary_text.pack(anchor="w", padx=10, pady=(0,10))
 
         # Table
-        self.table_label = ctk.CTkLabel(self, text="Plan Actions:", font=ctk.CTkFont(weight="bold"))
+        self.table_label = ctk.CTkLabel(self.scrollable_frame, text="Plan Actions:", font=ctk.CTkFont(weight="bold"))
         self.table_label.pack(anchor="w", padx=20, pady=(10,5))
         self.table_label.pack_forget()
 
-        self.tree = ttk.Treeview(self, columns=("ID", "Type", "Src/SrcA", "Dest/SrcB"), show="headings", height=10)
+        # Create a scrollable frame for the tree view
+        self.tree_frame = ctk.CTkScrollableFrame(self.scrollable_frame, height=300)
+        self.tree_frame.pack(pady=5, padx=20, fill="both", expand=True)
+        self.tree_frame.pack_forget()
+
+        self.tree = ttk.Treeview(self.tree_frame, columns=("ID", "Type", "Src/SrcA", "Dest/SrcB"), show="headings")
         self.tree.heading("ID", text="#")
         self.tree.heading("Type", text="Type")
         self.tree.heading("Src/SrcA", text="Src/SrcA")
@@ -186,11 +204,10 @@ class App(ctk.CTk):
         self.tree.column("Type", width=120)
         self.tree.column("Src/SrcA", width=250)
         self.tree.column("Dest/SrcB", width=250)
-        self.tree.pack(pady=5, padx=20, fill="both", expand=True)
-        self.tree.pack_forget()
+        self.tree.pack(fill="both", expand=True)
 
         # Apply section
-        self.apply_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.apply_frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
         self.apply_frame.pack(pady=10, padx=20, fill="x")
 
         self.dry_run_checkbox = ctk.CTkCheckBox(self.apply_frame, text="Dry run")
@@ -202,11 +219,11 @@ class App(ctk.CTk):
         self.apply_frame.pack_forget()
 
         # Notes
-        self.notes_label = ctk.CTkLabel(self, text="Notes & Warnings:", font=ctk.CTkFont(weight="bold"))
+        self.notes_label = ctk.CTkLabel(self.scrollable_frame, text="Notes & Warnings:", font=ctk.CTkFont(weight="bold"))
         self.notes_label.pack(anchor="w", padx=20, pady=(10,5))
         self.notes_label.pack_forget()
 
-        self.notes_textbox = ctk.CTkTextbox(self, wrap="word", height=100)
+        self.notes_textbox = ctk.CTkTextbox(self.scrollable_frame, wrap="word", height=100)
         self.notes_textbox.pack(pady=5, padx=20, fill="x")
         self.notes_textbox.pack_forget()
 
@@ -247,8 +264,12 @@ class App(ctk.CTk):
         target = Path(target_text)
         ignore_text = self.ignore_entry.get()
         ignore_patterns = [p.strip() for p in ignore_text.split(',') if p.strip()]
+        
+        # Capture verbose output
+        verbose_output = []
+        
         try:
-            self.plan = build_plan(self.sources, target, ignore_patterns=ignore_patterns)
+            self.plan = build_plan(self.sources, target, ignore_patterns=ignore_patterns, verbose_output=verbose_output)
             all_rows = _format_actions_by_type(self.plan)
             
             # Update summary
@@ -260,10 +281,17 @@ class App(ctk.CTk):
             for row in all_rows:
                 self.tree.insert("", tk.END, values=row)
             
+            # Update verbose logging field first and show it immediately
+            self.logging_textbox.delete("0.0", tk.END)
+            if verbose_output:
+                self.logging_textbox.insert("0.0", "\n".join(verbose_output))
+            self.logging_label.pack(anchor="w", padx=20, pady=(10,5))
+            self.logging_textbox.pack(pady=5, padx=20, fill="both", expand=True)
+            
             # Show all plan-related elements
             self.summary_frame.pack(pady=10, padx=20, fill="x")
             self.table_label.pack(anchor="w", padx=20, pady=(10,5))
-            self.tree.pack(pady=5, padx=20, fill="both", expand=True)
+            self.tree_frame.pack(pady=5, padx=20, fill="both", expand=True)
             self.apply_frame.pack(pady=10, padx=20, fill="x")
             
             # Update notes
@@ -293,7 +321,8 @@ def build_plan_action(sources_str: str, target_str: str) -> tuple:
     if not sources or not target_str:
         return "", [], {}, "Please provide at least one source vault and a target path.", [], [], [], []
     try:
-        plan = build_plan(sources, target)
+        verbose_output = []
+        plan = build_plan(sources, target, verbose_output=verbose_output)
         all_rows = _format_actions_by_type(plan)
         copy_table = [r for r in all_rows if r[1] == "copy"]
         md_table = [r for r in all_rows if r[1] == "merge_markdown"]
@@ -301,9 +330,10 @@ def build_plan_action(sources_str: str, target_str: str) -> tuple:
         settings_table = [r for r in all_rows if r[1] == "merge_settings"]
         plan_json = json.dumps(plan, indent=2)
         details = json.dumps({"notes": plan.get("notes", []), "warnings": plan.get("warnings", []), "excluded_files": plan.get("excluded_files", [])}, indent=2)
-        return plan_json, all_rows, details, "", md_table, rename_table, settings_table, copy_table
+        verbose_log = "\n".join(verbose_output)
+        return plan_json, all_rows, details, "", md_table, rename_table, settings_table, copy_table, verbose_log
     except Exception as e:
-        return "", [], {}, str(e), [], [], [], []
+        return "", [], {}, str(e), [], [], [], [], ""
 
 
 def main(source=None, target=None, plan_file=None):

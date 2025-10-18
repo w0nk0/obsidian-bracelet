@@ -1,5 +1,4 @@
 from __future__ import annotations
-import json
 import re
 import shutil
 from pathlib import Path
@@ -30,10 +29,12 @@ def _update_links(content: str) -> str:
     def replace_link(match):
         link = match.group(2)
         if not link.startswith(('http://', 'https://', '#')) and '.' in link:
-            # Assume moved to !res if not md/txt
+            # All non-markdown files are in !res
             path = Path(link)
             if path.suffix.lower() not in ('.md', '.txt'):
-                return f'[{match.group(1)}](!res/{link})'
+                # If link doesn't already start with !res, add it
+                if not link.startswith('!res/'):
+                    return f'[{match.group(1)}](!res/{link})'
         return match.group(0)
     # Update markdown links
     content = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', replace_link, content)
@@ -41,7 +42,9 @@ def _update_links(content: str) -> str:
     def replace_wiki(match):
         link = match.group(1).split('|')[0]
         if '.' in link and Path(link).suffix.lower() not in ('.md', '.txt'):
-            return f'[[!res/{link}]]'
+            # If link doesn't already start with !res, add it
+            if not link.startswith('!res/'):
+                return f'[[!res/{link}]]'
         return match.group(0)
     content = re.sub(r'\[\[([^\]]+)\]\]', replace_wiki, content)
     return content
@@ -67,7 +70,7 @@ def _merge_markdown(src_a: Path, src_b: Path, dest: Path, vault_a: str, vault_b:
     
     try:
         dest.write_text(divider_a + a + divider_b + b, encoding="utf-8")
-    except Exception as e:
+    except Exception:
         # If merge fails, create individual files
         try:
             dest_a = dest.with_name(f"{dest.stem}__from-{vault_a}{dest.suffix}")
@@ -87,7 +90,8 @@ def apply_plan(plan: dict, dry_run: bool = False):
     for act in actions:
         t = act["type"]
         if t == "mkdir":
-            if dry_run: continue
+            if dry_run:
+                continue
             Path(plan["target_root"]).mkdir(parents=True, exist_ok=True)
         elif t in ("copy", "rename_copy"):
             src = Path(act["src"])

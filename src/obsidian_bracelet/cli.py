@@ -15,11 +15,33 @@ def plan(
     target: Path = typer.Option(..., "--target", "-t", file_okay=False, dir_okay=True, help="Directory where the merged vault will be created"),
     ignore_patterns: list[str] = typer.Option([], "--ignore", "-i", help="Regex patterns to ignore files (repeatable)"),
     output: Path = typer.Option("merge-plan.json", "--output", "-o", help="Where to write the plan JSON"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed planning progress"),
 ):
     from .planner import build_plan
+    import sys
+    
+    if verbose:
+        print(f"[blue]Starting merge plan generation...[/blue]")
+        print(f"Source vaults: {', '.join(str(s) for s in source)}")
+        print(f"Target: {target}")
+        print(f"Output file: {output}")
+        if ignore_patterns:
+            print(f"Ignore patterns: {', '.join(ignore_patterns)}")
+        print("")
+    
     plan = build_plan([Path(p).resolve() for p in source], Path(target).resolve(), ignore_patterns=ignore_patterns)
     output.write_text(json.dumps(plan, indent=2, ensure_ascii=False))
-    print(f"[green]Wrote plan:[/green] {output}")
+    
+    if verbose:
+        print(f"[green]Plan generation complete![/green]")
+        print(f"Plan written to: {output}")
+        print(f"Actions planned: {len(plan.get('actions', []))}")
+        print(f"Notes: {len(plan.get('notes', []))}")
+        print(f"Warnings: {len(plan.get('warnings', []))}")
+        if plan.get('excluded_files'):
+            print(f"Excluded files: {len(plan['excluded_files'])}")
+    else:
+        print(f"[green]Wrote plan:[/green] {output}")
 
 @app.command(help="Apply a merge plan JSON file to the target location.")
 def apply(
