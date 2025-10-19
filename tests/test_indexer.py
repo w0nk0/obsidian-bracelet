@@ -29,14 +29,14 @@ def test_collect_files():
         os.utime(tmpdir / "image.png", (now - 259200, now - 259200))  # 3 days ago
         
         # Collect files
-        file_data = collect_files(tmpdir)
+        created_data, modified_data = collect_files(tmpdir)
         
         # Check structure
-        assert len(file_data) == 1  # All files in the same year/month
+        assert len(created_data) == 1  # All files in the same year/month
         
-        year = list(file_data.keys())[0]
-        month_key = list(file_data[year].keys())[0]
-        month_data = file_data[year][month_key]
+        year = list(created_data.keys())[0]
+        month_key = list(created_data[year].keys())[0]
+        month_data = created_data[year][month_key]
         
         # Check text files
         assert len(month_data["text_files"]) == 2
@@ -115,8 +115,8 @@ def test_generate_yearly_index():
         assert "# 2025" in content
         assert "tags:" not in content  # Should not have tags in index files
         assert "## Monthly Indexes" in content
-        assert "[[MONTH2025_10.md]]" in content
-        assert "[[MONTH2025_11.md]]" in content
+        assert "[[YEAR2025_10.md]]" in content
+        assert "[[YEAR2025_11.md]]" in content
         assert "October:" in content
         assert "November:" in content
         assert "(1 text, 1 media files)" in content
@@ -136,12 +136,12 @@ def test_skip_obsidian_files():
         (tmpdir / "note.md").write_text("# Test")
         
         # Collect files
-        file_data = collect_files(tmpdir)
+        created_data, modified_data = collect_files(tmpdir)
         
         # Should only have the regular file
-        year = list(file_data.keys())[0]
-        month_key = list(file_data[year].keys())[0]
-        month_data = file_data[year][month_key]
+        year = list(created_data.keys())[0]
+        month_key = list(created_data[year].keys())[0]
+        month_data = created_data[year][month_key]
         
         assert len(month_data["text_files"]) == 1
         assert month_data["text_files"][0]["path"] == "note.md"

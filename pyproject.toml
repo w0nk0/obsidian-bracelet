@@ -54,3 +54,8 @@ addopts = "-q"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/obsidian_bracelet"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]

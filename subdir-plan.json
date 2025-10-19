@@ -1,0 +1,42 @@
+{
+  "target_root": "/home/nico/python/obsidian-vault-integrator/test-subdirs/merged",
+  "actions": [
+    {
+      "type": "mkdir",
+      "path": "."
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-subdirs/vault1/docs/note.md",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-subdirs/merged/docs/note.md"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-subdirs/vault1/assets/image.png",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-subdirs/merged/!res/assets/image.png"
+    },
+    {
+      "type": "copy",
+      "src": "/home/nico/python/obsidian-vault-integrator/test-subdirs/vault1/.obsidian/app.json",
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-subdirs/merged/.obsidian/app.json"
+    },
+    {
+      "type": "merge_settings",
+      "sources": [
+        "/home/nico/python/obsidian-vault-integrator/test-subdirs/vault1",
+        "/home/nico/python/obsidian-vault-integrator/test-subdirs/vault2"
+      ],
+      "dest": "/home/nico/python/obsidian-vault-integrator/test-subdirs/merged/.obsidian"
+    }
+  ],
+  "notes": [
+    "Deduplicated identical !res/assets/image.png from 2 vaults; kept vault1",
+    "Deduplicated identical .obsidian/app.json from 2 vaults; kept vault1"
+  ],
+  "warnings": [],
+  "sources": [
+    "/home/nico/python/obsidian-vault-integrator/test-subdirs/vault1",
+    "/home/nico/python/obsidian-vault-integrator/test-subdirs/vault2"
+  ],
+  "excluded_files": []
+}
