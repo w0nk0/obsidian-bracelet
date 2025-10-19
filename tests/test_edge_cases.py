@@ -7,12 +7,8 @@ Test Case Mapping for tests/test_edge_cases.py:
 - test_large_files: Corresponds to Test Case 7, Scenario 4 (Large files)
 """
 
-import json
-import os
-import stat
 from pathlib import Path
 import pytest
-import tempfile
 
 from obsidian_bracelet.planner import build_plan
 from obsidian_bracelet.apply import apply_plan
@@ -35,9 +31,9 @@ def test_empty_vault(tmp_path: Path):
     # Build plan with empty vault
     plan = build_plan([empty_vault, valid_vault], target)
     
-    # Should have warning about missing .obsidian folder
+    # Should have warning about not containing any Obsidian vaults
     warnings = plan["warnings"]
-    assert any("missing .obsidian" in warning.lower() for warning in warnings)
+    assert any("does not contain any Obsidian vaults" in warning for warning in warnings)
     assert any("empty-vault" in warning for warning in warnings)
     
     # Should still have actions for valid vault
@@ -51,7 +47,7 @@ def test_empty_vault(tmp_path: Path):
 
 # Test Case 7, Scenario 2: Invalid vault
 def test_invalid_vault(tmp_path: Path):
-    """Test Case 7, Scenario 2: Invalid vault - Directory missing .obsidian folder"""
+    """Test Case 7, Scenario 2: Invalid vault - Directory missing .obsidian folder (filtered out early)"""
     invalid_vault = tmp_path / "invalid-vault"
     invalid_vault.mkdir()
     (invalid_vault / "note.md").write_text("Note in invalid vault")  # No .obsidian folder
@@ -61,9 +57,9 @@ def test_invalid_vault(tmp_path: Path):
     # Build plan with invalid vault
     plan = build_plan([invalid_vault], target)
     
-    # Should have warning about invalid vault structure
+    # Should have warning about not containing any Obsidian vaults
     warnings = plan["warnings"]
-    assert any("invalid vault" in warning.lower() or "missing .obsidian" in warning.lower() for warning in warnings)
+    assert any("does not contain any Obsidian vaults" in warning for warning in warnings)
     
     # Plan should be generated but with minimal actions
     actions = plan["actions"]
@@ -71,9 +67,9 @@ def test_invalid_vault(tmp_path: Path):
     mkdir_actions = [a for a in actions if a["type"] == "mkdir"]
     assert len(mkdir_actions) >= 1
     
-    # Should still have copy actions for files in invalid vault (system copies files even without .obsidian)
+    # Should NOT have copy actions for files in invalid vault (vault is filtered out)
     copy_actions = [a for a in actions if a["type"] == "copy"]
-    assert len(copy_actions) >= 1  # Should copy note.md even without .obsidian
+    assert len(copy_actions) == 0  # Should not copy any files from invalid vault
 
 
 # Test Case 7, Scenario 3: Permission errors

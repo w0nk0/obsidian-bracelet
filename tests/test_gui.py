@@ -8,7 +8,6 @@ Test Case Mapping for tests/test_gui.py:
 
 import json
 from pathlib import Path
-import types
 
 import pytest
 
@@ -54,7 +53,7 @@ def test_build_plan_action_validates_inputs(tmp_path: Path):
     """Test GUI plan building - input validation"""
     # Missing inputs should produce a status message
     outputs = build_plan_action("", "")
-    # plan_json, all_table, details, status, md_table, rename_table, settings_table, copy_table
+    # plan_json, all_table, details, status, md_table, rename_table, settings_table, copy_table, _
     assert isinstance(outputs, tuple) and len(outputs) == 8
     status = outputs[3]
     assert "Please provide" in status
@@ -63,14 +62,17 @@ def test_build_plan_action_validates_inputs(tmp_path: Path):
 def test_build_plan_action_success(tmp_path: Path):
     """Test GUI plan building - corresponds to Test Case 1: Basic Vault Merging"""
     # Prepare two simple vaults
-    va = tmp_path / "A"; vb = tmp_path / "B"; tgt = tmp_path / "T"
+    va = tmp_path / "A"
+    vb = tmp_path / "B"
+    tgt = tmp_path / "T"
     for s in (va, vb):
         (s / ".obsidian").mkdir(parents=True, exist_ok=True)
         (s / ".obsidian" / "app.json").write_text("{}")
         (s / "n.md").write_text("x")
-    plan_json, all_table, details, status, md_table, rename_table, settings_table, copy_table = build_plan_action(
+    result = build_plan_action(
         f"{va}\n{vb}", str(tgt)
     )
+    plan_json, all_table, details, status, md_table, rename_table, settings_table, copy_table = result[:8]
     assert status == ""
     assert isinstance(plan_json, str) and plan_json.strip().startswith("{")
     assert isinstance(all_table, list)
@@ -111,9 +113,10 @@ def test_gui_review_process_test_case_5(tmp_path: Path):
     (vb / "Work.md").write_text("# Work\n\nOnly in vault B")
     
     # Build plan using the same function GUI would use
-    plan_json, all_table, details, status, md_table, rename_table, settings_table, copy_table = build_plan_action(
+    result = build_plan_action(
         f"{va}\n{vb}", str(tgt)
     )
+    plan_json, all_table, details, status, md_table, rename_table, settings_table, copy_table = result[:8]
     
     # Verify GUI can load and display the merge plan
     assert status == ""  # Plan should build successfully
